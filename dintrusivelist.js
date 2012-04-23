@@ -8,7 +8,7 @@ define(['cclass'],function(cclass) {
 			this._prevProp = '_prev'+name;
 		},
 		push: function(o) {
-			if (this._nextProp in o) { throw "Already in list"; }
+			if (this._nextProp in o) { debugger; throw "Already in list"; }
 			var next = this.root;
 			if (next) {
 				next[this._prevProp] = o;
@@ -26,7 +26,7 @@ define(['cclass'],function(cclass) {
 			this.remove(this.root);
 		},
 		remove: function(o) {
-			if (!(this._nextProp in o)) { throw "Not in list"; }
+			if (!(this._nextProp in o)) { debugger; throw "Not in list"; }
 			var prev = o[this._prevProp];
 			var next = o[this._nextProp];
 			if (this.root === o) {
@@ -39,12 +39,6 @@ define(['cclass'],function(cclass) {
 			}
 			delete o[this._nextProp];
 			delete o[this._prevProp];
-			this.each(function(o) {
-				if (o[this._nextProp] === o) {
-					throw "koek";
-				}
-			});
-
 		},
 		each: function(f) {
 			var o = this.root;

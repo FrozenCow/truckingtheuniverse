@@ -28,8 +28,6 @@ define(['cclass','intrusivelist','dintrusivelist'],function(cclass,IntrusiveList
 			});
 		},
 		remove: function(o) {
-			if (o.__pendingRemove) { return; }
-			o.__pendingRemove = true;
 			this.pendingRemove.push(o);
 		},
 		handlePending: function() {

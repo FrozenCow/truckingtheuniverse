@@ -9,6 +9,15 @@ define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitt
 			this.height = canvas.height;
 			this.canvas = canvas;
 			this.graphics = new Graphics(canvas.getContext('2d'));
+			this.time = 0;
+
+			this.drawchain = {
+				draw: function(g) {
+					me.objects.lists.draw.each(function(o) {
+						o.draw(me.graphics);
+					});
+				}
+			};
 
 			if (components) {
 				components.forEach(function(c) {
@@ -17,10 +26,17 @@ define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitt
 				this.components = components;
 			}
 		},
+		addDrawChain: function(f) {
+			this.drawchain = {
+				next: this.drawchain,
+				draw: f
+			};
+		},
 		start: function() {
 			if (this.isRunning) { throw 'Already started'; }
 			var me = this;
 			var runningToken = {};
+			me.time = 0;
 			me.running = runningToken;
 			this.canvas.setAttribute('tabIndex', '0');
 			this.canvas.focus();
@@ -40,6 +56,8 @@ define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitt
 				lastUpdate = now;
 				dt = Math.min(1/30,dt);
 
+				me.time += dt;
+
 				me.emit('preupdate',dt);
 				me.objects.lists.update.each(function(o) {
 					o.update(dt);
@@ -48,11 +66,14 @@ define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitt
 				me.emit('postupdate',dt);
 
 				me.graphics.clear();
-				me.emit('predraw', me.graphics);
-				me.objects.lists.draw.each(function(o) {
-					o.draw(me.graphics);
-				});
-				me.emit('postdraw', me.graphics);
+
+				function nextDraw(chain) {
+					chain.draw(me.graphics,function() {
+						nextDraw(chain.next);
+					});
+				}
+				nextDraw(me.drawchain);
+
 				if (me.running === runningToken) {
 					requestAnimationFrame(update);
 				}

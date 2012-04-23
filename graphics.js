@@ -94,7 +94,14 @@ define(['cclass'],function(cclass) {
 			this.restore();
 		},
 		drawImage: function(img,sx,sy,sw,sh,dx,dy,dw,dh) {
-			this.context.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);
+			if (img) {
+				this.context.drawImage.apply(this.context,arguments);
+			}
+		},
+		drawCenteredImage: function(img,x,y) {
+			if (img) {
+				this.context.drawImage(img,x-img.width/2,y-img.height/2);
+			}
 		},
 		loadImage: function(name,complete,error) {
 			var img = new Image();
@@ -130,9 +137,11 @@ define(['cclass'],function(cclass) {
 		save: function() {
 			if (!this._depth) { this._depth = 0; }
 			this._depth++;
+			this.context.save();
 		},
 		restore: function() {
 			if (this._depth <= 0) { debugger; console.log('NOES'); throw "NOES"; }
+			this.context.restore();
 			this._depth--;
 		}
 	});

@@ -43,8 +43,8 @@ define(['vector','staticcollidable'],function(Vector,StaticCollidable){
 		pass('mouseup');
 		pass('keydown');
 		pass('keyup');
-		pass('predraw');
-		pass('postdraw');
+		//pass('predraw');
+		//pass('postdraw');
 
 		g.on('keydown', function(button) {
 			if (tools[button]) {

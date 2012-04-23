@@ -11,12 +11,14 @@ define(function() {
 			g.mouse.y = event.offsetY||event.clientY;
 			delete g.mouse.buttons[event.button];
 			g.emit('mouseup', event.button, g.mouse.x, g.mouse.y);
+			return false;
 		},true);
 		g.canvas.addEventListener('mousedown', function(event) {
 			g.mouse.x = event.offsetX||event.clientX;
 			g.mouse.y = event.offsetY||event.clientY;
 			g.mouse.buttons[event.button] = true;
 			g.emit('mousedown', event.button, g.mouse.x, g.mouse.y);
+			return false;
 		},true);
 		g.canvas.addEventListener('mousemove', function(event) {
 			g.mouse.x = event.offsetX||event.clientX;

@@ -7,6 +7,12 @@ define(function() {
 			quake.step = magnitude/time;
 			quake.magnitude = magnitude;
 		};
+		g.addDrawChain(function(g,next) {
+			g.save();
+			g.context.translate(rnd()*quake.magnitude,rnd()*quake.magnitude);
+			next();
+			g.restore();
+		});
 		g.on('postupdate', function(dt) {
 			if (quake.magnitude > 0) {
 				quake.magnitude -= quake.step*dt;
@@ -14,13 +20,6 @@ define(function() {
 					quake.magnitude = 0;
 				}
 			}
-		});
-		g.on('predraw', function(g) {
-			g.save();
-			g.context.translate(rnd()*quake.magnitude,rnd()*quake.magnitude);
-		});
-		g.on('postdraw', function(g) {
-			g.restore();
 		});
 
 		g.quake = quake;
