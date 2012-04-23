@@ -81,13 +81,23 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 		for (var name in audio) {
 			(function(name) {
 				total++;
+				var isdone = false;
 				var a = audio[name] = new Audio(name+'.wav');
+				try {
+				a.addEventListener('canplaythrough', markdone, false);
+				} catch(e) { }
 				function checkReady() {
+					if (isdone) { return; }
 					if (a.readyState) {
-						done();
+						markdone();
 					} else {
 						setTimeout(checkReady,10);
 					}
+				}
+				function markdone() {
+					a.removeEventListener('canplaythrough', markdone);
+					isdone = true;
+					done();
 				}
 				checkReady();
 			})(name);
