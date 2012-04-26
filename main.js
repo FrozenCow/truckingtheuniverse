@@ -19,7 +19,7 @@ function rnd() {
 	return (Math.random()-0.5)*2;
 }
 
-require(['domready','game','cclass','vector','editor','mouse','collision','staticcollidable','keyboard','quake'],function(domready,Game,cclass,Vector,editor,mouse,collision,StaticCollidable,keyboard,quake) {
+require(['domready','game','cclass','vector','editor','mouse','collision','staticcollidable','keyboard','quake','resources'],function(domready,Game,cclass,Vector,editor,mouse,collision,StaticCollidable,keyboard,quake,resources) {
 	domready(function(document){
 	if (!document) { return; }
 	var canvas = document.getElementById('main');
@@ -27,102 +27,21 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 	var t = new Vector();
 	var u = new Vector();
 
-	var g = new Game(canvas, [mouse,keyboard,collision,quake]);
+	var g = new Game(canvas, [mouse,keyboard,resources,collision,quake]);
 	var game = g;
 	var camera = new Vector(0,0);
 	var quest = null;
-	var images = {
-		planet1: null,
-		planet2: null,
-		planet3: null,
-		planet4: null,
-		planet5: null,
-		planet6: null,
-		car: null,
-		background: null,
-		planetshadow: null,
-		arrow: null,
-		house: null,
-		shop: null,
-		dow_head: null,
-		dow_segment: null,
-		dow_tail: null
-	};
-	var audio = {
-		jump1: null,
-		jump2: null,
-		jump3: null,
-		land: null,
-		buy: null,
-		emerge: null,
-		dowdie: null,
-		playerdie:null
-	};
-	function preload(complete,error) {
-		var totalReady = 0;
-		var total = 0;
+	g.resources.preload({
+		images: ['planet1','planet2','planet3','planet4','planet5','planet6','car','background','planetshadow','arrow','house','shop','dow_head','dow_segment','dow_tail'],
+		audio: ['jump1','jump2','jump3','land','buy','emerge','dowdie','playerdie']
+	},startGame,function() {
+		console.error('Could not load all files! Continuing anyway...');
+		startGame();
+	});
 
-		// Load image files.
-		for (var name in images) {
-			(function(name){
-				total++;
-				g.graphics.loadImage(name,function(image) {
-					//console.log('image loaded',name,image);
-					images[name] = image;
-					done();
-				},function(err) {
-					console.error('could not load image',name);
-					error();
-				});
-			})(name);
-		}
-
-		// Load audio files.
-		for (var name in audio) {
-			(function(name) {
-				total++;
-				var isdone = false;
-				var a = audio[name] = new Audio(name+'.wav');
-				try {
-				a.addEventListener('canplaythrough', markdone, false);
-				} catch(e) { }
-				function checkReady() {
-					if (isdone) { return; }
-					if (a.readyState) {
-						markdone();
-					} else {
-						setTimeout(checkReady,10);
-					}
-				}
-				function markdone() {
-					a.removeEventListener('canplaythrough', markdone);
-					isdone = true;
-					done();
-				}
-				checkReady();
-			})(name);
-		}
-
-		// Draw loading status.
-		function updateStatus() {
-			g.graphics.clear();
-			g.graphics.fillStyle('white');
-			g.graphics.context.fillText('Loading '+totalReady+'/'+total+'...',50,50);
-			g.graphics.fillStyle('black');
-		}
-		updateStatus();
-
-		function done() {
-			totalReady++;
-			updateStatus();
-			if (total === totalReady) {
-				complete();
-			}
-		}
-	}
-
-	preload(startGame,function() { alert('Could not load all files! Continueing anyway... :S'); startGame(); });
 	function startGame() {
+	var images = g.resources.images;
+	var audio = g.resources.audio;
 	var messages = [];
 
 	g.objects.addIndex('planet');

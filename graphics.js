@@ -103,37 +103,6 @@ define(['cclass'],function(cclass) {
 				this.context.drawImage(img,x-img.width/2,y-img.height/2);
 			}
 		},
-		loadImage: function(name,complete,error) {
-			var img = new Image();
-			img.src = name+'.png';
-			if (complete) {
-				img.onload = function() {
-					complete(img);
-				};
-			}
-			if (error) {
-				img.onerror = error;
-			}
-			return img;
-		},
-		loadAnimation: function(name,sizex,sizey,frames,complete,error) {
-			var me = this;
-			this.loadImage(name,function(image) {
-				complete({
-					frame: 0,
-					rate: 1,
-					update: function(dt) {
-						var rate = this.rate;
-						this.frame += dt*rate;
-						while (this.frame > rate*frames) { this.frame -= rate*frames; }
-					},
-					draw: function(ctx,dx,dy,dw,dh) {
-						var frame = Math.floor(this.frame);
-						me.context.drawImage(image,sizex*frame,0,sizex,sizey,dx,dy,dw,dh);
-					}
-				});
-			},error);
-		},
 		save: function() {
 			if (!this._depth) { this._depth = 0; }
 			this._depth++;
