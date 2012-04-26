@@ -191,32 +191,6 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 		},
 		touch: function(o) {
 			if (o.constructor === Planet) {
-				/*if (this.radius > o.radius || (this.radius === o.radius && this.x < o.x)) {
-					var oradius = o.radius;
-					var oarea = Math.PI*oradius*oradius;
-					var myradius = this.radius;
-					var myarea = Math.PI*myradius*myradius;
-
-					var overlap = -(this.position.distanceToV(o.position)-oradius-myradius);
-					if (overlap > 0) {
-						oarea -= overlap*100;
-						myarea += overlap*100;
-
-						if (oarea < 300) {
-							o.residents.forEach(function(r) {
-								r.leavePlanet(0);
-							});
-							g.objects.remove(o);
-						} else {
-							oradius = Math.sqrt(oarea/Math.PI);
-							myradius = Math.sqrt(myarea/Math.PI);
-
-							this.radius = myradius;
-							o.radius = oradius;
-						}
-					}
-				}*/
-
 				t.setV(o.position);
 				t.substractV(this.position);
 				var l = t.length();
