@@ -19,9 +19,15 @@ function rnd() {
 	return (Math.random()-0.5)*2;
 }
 
-require(['domready','game','cclass','vector','editor','mouse','collision','staticcollidable','keyboard','quake','resources'],function(domready,Game,cclass,Vector,editor,mouse,collision,StaticCollidable,keyboard,quake,resources) {
-	domready(function(document){
-	if (!document) { return; }
+function extend(o,extension) {
+	for(var i in extension) {
+		if (extension.hasOwnProperty(i)) {
+			o[i] = extension[i];
+		}
+	}
+}
+
+require(['domready!','game','cclass','vector','editor','mouse','collision','staticcollidable','keyboard','quake','resources'],function(document,Game,cclass,Vector,editor,mouse,collision,StaticCollidable,keyboard,quake,resources) {
 	var canvas = document.getElementById('main');
 	
 	var t = new Vector();
@@ -815,5 +821,4 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 
 	g.start();
 	}
-});
 });
