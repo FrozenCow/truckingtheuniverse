@@ -641,7 +641,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			begin:function(){f();},
 			end:function(){},
 			draw:function(){}
-		}
+		};
 	}
 
 	doQuest(getGroceriesQuest);
