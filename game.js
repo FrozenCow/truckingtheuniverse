@@ -1,9 +1,29 @@
 define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitter,cclass,ObjectManager,Graphics) {
+	function chain(fs,next) {
+		function call(i,args) {
+			if (i < fs.length) {
+				var f = fs[i];
+				var fargs = [function(){return call(i+1,arguments);}];
+				Array.prototype.unshift.apply(fargs,args);
+				return f.apply(null,fargs);
+			} else {
+				return next.apply(null,args);
+			}
+		}
+		return function(/*...*/) {
+			call(0,arguments);
+		};
+	}
+
 	return cclass(Object,eventemitter,{
 		constructor: function(canvas, components) {
 			var me = this;
 
 			this.objects = new ObjectManager(['update','draw']);
+			this.chains = {
+				draw: [],
+				update: []
+			};
 
 			this.width = canvas.width;
 			this.height = canvas.height;
@@ -11,26 +31,12 @@ define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitt
 			this.graphics = new Graphics(canvas.getContext('2d'));
 			this.time = 0;
 
-			this.drawchain = {
-				draw: function(g) {
-					me.objects.lists.draw.each(function(o) {
-						o.draw(me.graphics);
-					});
-				}
-			};
-
 			if (components) {
 				components.forEach(function(c) {
 					c(me);
 				});
 				this.components = components;
 			}
-		},
-		addDrawChain: function(f) {
-			this.drawchain = {
-				next: this.drawchain,
-				draw: f
-			};
 		},
 		start: function() {
 			if (this.isRunning) { throw 'Already started'; }
@@ -58,21 +64,20 @@ define(['eventemitter','cclass','objectmanager','graphics'], function(eventemitt
 
 				me.time += dt;
 
-				me.emit('preupdate',dt);
-				me.objects.lists.update.each(function(o) {
-					o.update(dt);
-				});
-				me.objects.handlePending();
-				me.emit('postupdate',dt);
+				chain(me.chains.update,function(dt) {
+					me.objects.lists.update.each(function(o) {
+						o.update(dt);
+					});
+					me.objects.handlePending();
+				})(dt);
 
 				me.graphics.clear();
 
-				function nextDraw(chain) {
-					chain.draw(me.graphics,function() {
-						nextDraw(chain.next);
+				chain(me.chains.draw,function(g) {
+					me.objects.lists.draw.each(function(o) {
+						o.draw(g);
 					});
-				}
-				nextDraw(me.drawchain);
+				})(me.graphics);
 
 				if (me.running === runningToken) {
 					requestAnimationFrame(update);

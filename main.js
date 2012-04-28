@@ -46,7 +46,7 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 
 	g.objects.addIndex('planet');
 	g.objects.addIndex('radius');
-	g.on('postupdate', function(dt) {
+	g.chains.update.push(function(dt,next) {
 		g.objects.lists.radius.each(function(a) {
 			g.objects.lists.radius.each(function(b) {
 				if (a !== b) {
@@ -56,6 +56,7 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 				}
 			});
 		});
+		next(dt);
 	});
 
 	function extend(o,extension) {
@@ -693,7 +694,7 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 	}
 
 
-	g.addDrawChain(function(g,next) {
+	g.chains.draw.push(function(g,next) {
 		g.save();
 		var p = player.position;
 		if (player.planet && player.planet.radius < 250) {
@@ -723,7 +724,7 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 		}
 		drawBackground();
 
-		next();
+		next(g);
 		if (quest) {
 			quest.draw(g);
 		}
@@ -743,8 +744,9 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 		});
 	});
 
-	g.on('preupdate', function(dt) {
+	g.chains.update.unshift(function(dt,next) {
 		player.move(dt,slide(g.keys.left,g.keys.right),-slide(g.keys.down, g.keys.up));
+		next(dt);
 	});
 
 	function tryPlacePlanet(x,y) {
@@ -785,7 +787,8 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 	placeInitialPlanets();
 
 	var time = 0;
-	g.on('postupdate', function(dt) {
+
+	g.chains.update.push(function(dt,next) {
 		g.objects.lists.planet.each(function(p) {
 			if (!p.persistent && p.position.distanceToV(player.position) > 1500) {
 				g.objects.remove(p);
@@ -804,14 +807,8 @@ require(['domready','game','cclass','vector','editor','mouse','collision','stati
 				time -= interval;
 			}
 		});
+		next(dt);
 	});
-
-	/*g.on('postupdate', function(dt) {
-		if (g.playerdied) {
-			delete g.playerdied;
-			playerdied();
-		}
-	});*/
 
 	g.objects.add(player);
 	//g.objects.add(blackhole);

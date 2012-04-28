@@ -6,20 +6,21 @@ define(function() {
 		function quake(time,magnitude) {
 			quake.step = magnitude/time;
 			quake.magnitude = magnitude;
-		};
-		g.addDrawChain(function(g,next) {
+		}
+		g.chains.draw.unshift(function(g,next) {
 			g.save();
 			g.context.translate(rnd()*quake.magnitude,rnd()*quake.magnitude);
-			next();
+			next(g);
 			g.restore();
 		});
-		g.on('postupdate', function(dt) {
+		g.chains.update.unshift(function(dt,next) {
 			if (quake.magnitude > 0) {
 				quake.magnitude -= quake.step*dt;
 				if (quake.magnitude < 0) {
 					quake.magnitude = 0;
 				}
 			}
+			next(dt);
 		});
 
 		g.quake = quake;
