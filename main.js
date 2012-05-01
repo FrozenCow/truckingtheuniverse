@@ -259,12 +259,19 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			var mymass = this.radius;
 			var totalmass = mymass+planetmass;
 
-			t.set(Math.cos(this.angle),Math.sin(this.angle));
+			t.set(Math.cos(this.angle-Math.PI*0.2),Math.sin(this.angle-Math.PI*0.2));
+			t.normalRight();
 			t.multiply(force);
 			
 			var f = planetmass/totalmass;
 			this.velocity.set(t.x*f,t.y*f);
 			this.velocity.addV(this.planet.velocity);
+
+			/*t.set(Math.cos(this.angle),Math.sin(this.angle));
+			t.normalRight();
+			t.multiply(1000);
+			this.velocity.addV(t);*/
+
 			f = mymass/totalmass;
 			this.planet.velocity.substract(t.x*f,t.y*f);
 
