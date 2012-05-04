@@ -192,13 +192,12 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			image: function() { return images.planet6; }
 		})
 	};
-	for (var name in planets) {
-		(function(name) {
-			var p = planets[name];
-			p.persistent = true;
-			g.objects.add(p);
-		})(name);
-	}
+
+	Object.keys(planets).forEach(function(name) {
+		var p = planets[name];
+		p.persistent = true;
+		g.objects.add(p);
+	});
 
 	var player = {
 		position: new Vector(50,50),
@@ -732,7 +731,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 
 		var messageboxHeight = 80;
 		var messageboxWidth = 350;
-		var y = 600-messageboxHeight;
+		y = 600-messageboxHeight;
 		messages.forEach(function(m) {
 			g.fillStyle('rgba(0,0,0,0.5)');
 			g.fillRectangle(800-messageboxWidth,y,messageboxWidth,messageboxHeight);
@@ -754,12 +753,8 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			p.velocity.multiply(Math.random()*30);
 
 			var type = Math.floor(Math.random()*5)+1;
-			p.image = function() { return images['planet'+type]; }
+			p.image = function() { return images['planet'+type]; };
 			g.objects.add(p);
-
-			// if (Math.random() < 0.05) {
-			// 	p.attachments.push({angle: Math.random()*Math.PI*2, image:function() { return images.house}});
-			// }
 
 			return p;
 		}
