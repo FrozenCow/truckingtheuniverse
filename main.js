@@ -1,10 +1,14 @@
 var V = {
 	jump: 700,
+	drivespeed: 2300,
 	gravity: 900,
 	planetdamping: 0.999,
 	playerdamping: 0.999,
 	planetsize_max: 100,
-	planetsize_min: 50
+	planetsize_min: 50,
+	dowcatchupspeed: 600,
+	dowcatchupdistance: 550,
+	dowspeed: 250
 };
 
 Array.prototype.remove = function(elem) {
@@ -243,11 +247,10 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				}
 			}
 
-			var speed = 70;
 			if (this.planet) {
 				var circum = Math.PI*this.planet.radius*2;
 				circum = Math.max(100,circum);
-				this.angle += speed/circum*0.5;
+				this.angle += dt*V.drivespeed/circum;
 			}
 		},
 		leavePlanet: function(force) {
@@ -374,13 +377,12 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			t.substractV(this.position);
 			var dist = t.length();
 			t.normalize();
-			var speed = 2000;
-			if (dist < 500) {
-				speed = 600;
+			var speed = V.dowcatchupspeed;
+			if (dist < V.dowcatchupdistance) {
+				speed = V.dowspeed;
 			}
-			t.multiply(speed*dt);
-			this.velocity.multiply(0.95);
-			this.velocity.addV(t);
+			t.multiply(speed);
+			this.velocity.set(this.velocity.x*0.95+t.x*0.05,this.velocity.y*0.95+t.y*0.05);
 			this.position.add(this.velocity.x*dt,this.velocity.y*dt);
 		},
 		draw: function(g) {
