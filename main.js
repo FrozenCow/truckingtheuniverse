@@ -214,6 +214,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 
 		radius: 10,
 		powerup: null,
+		movement: 1,
 		use: function(powerup) {
 			if (this.powerup === powerup) { return; }
 			if (this.powerup) {
@@ -250,7 +251,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			if (this.planet) {
 				var circum = Math.PI*this.planet.radius*2;
 				circum = Math.max(100,circum);
-				this.angle += dt*V.drivespeed/circum;
+				this.angle += dt*this.movement*V.drivespeed/circum;
 			}
 		},
 		leavePlanet: function(force) {
@@ -260,7 +261,9 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			var mymass = this.radius;
 			var totalmass = mymass+planetmass;
 
-			t.set(Math.cos(this.angle-Math.PI*0.2),Math.sin(this.angle-Math.PI*0.2));
+			var takeOffAngle = this.angle-Math.PI*0.2*this.movement;
+			t.set(Math.cos(takeOffAngle),Math.sin(takeOffAngle));
+			t.multiply(this.movement);
 			t.normalRight();
 			t.multiply(force);
 			
@@ -302,18 +305,21 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			}
 		},
 		draw: function(g) {
-			var px,py,angle;
+			var px,py,angle,sx,sy;
+			sx=-0.3;sy=0.3;
 			if (this.planet) {
 				t.set(Math.cos(this.angle),Math.sin(this.angle));
 				t.multiply(this.planet.radius+this.radius);
 				t.addV(this.planet.position);
 				px=t.x;py=t.y;
 				angle = this.angle+Math.PI*0.5;
+				sx*=this.movement;
 			} else {
 				px=this.position.x;py=this.position.y;
 				angle = Math.atan2(this.velocity.y,this.velocity.x);
+				sy*=this.movement;
 			}
-			g.scalerotate(px,py,-0.3,0.3,angle,function() {
+			g.scalerotate(px,py,sx,sy,angle,function() {
 				g.drawCenteredImage(images.car,px,py);
 			});
 		},
@@ -323,8 +329,14 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 					t.set(Math.cos(this.angle),Math.sin(this.angle));
 					t.normalRight();
 					var d = t.dot(this.position.x-o.position.x,this.position.y-o.position.y);
-					if (d > 0) { return; }
+					if (d*this.movement > 0) { return; }
 					this.leavePlanet(0);
+				} else {
+					t.setV(o.position);
+					t.substractV(this.position);
+					t.normalize();
+					t.normalRight();
+					this.movement = (t.dotV(this.velocity) < 0) ? 1 : -1;
 				}
 				this.enterPlanet(o);
 			}
