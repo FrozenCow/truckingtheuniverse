@@ -195,7 +195,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 
 	Object.keys(planets).forEach(function(name) {
 		var p = planets[name];
-		p.persistent = true;
+		p.permanent = true;
 		g.objects.add(p);
 	});
 
@@ -780,7 +780,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 
 	g.chains.update.push(function(dt,next) {
 		g.objects.lists.planet.each(function(p) {
-			if (!p.persistent && p.position.distanceToV(player.position) > 1500) {
+			if (!p.permanent && p.position.distanceToV(player.position) > 1500) {
 				g.objects.remove(p);
 			}
 
