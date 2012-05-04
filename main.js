@@ -177,7 +177,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				image: function() { return images.house; }
 			}]
 		}),
-		groceries: new Planet(10000,Math.random()*5000,500,{
+		groceries: new Planet(7000,Math.random()*500,500,{
 			image: function() { return images.planet3; },
 			rotationspeed: 0,
 			attachments: repeatToArray(5, function(i) {
@@ -188,7 +188,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				};
 			})
 		}),
-		vulcanic: new Planet(10000+rnd()*500,10000+rnd()*500,500,{
+		vulcanic: new Planet(7000+rnd()*500,7000+rnd()*500,500,{
 			image: function() { return images.planet6; }
 		})
 	};
