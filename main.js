@@ -210,7 +210,6 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 		jumping: 0,
 
 		radius: 10,
-		movement: 1,
 		powerup: null,
 		use: function(powerup) {
 			if (this.powerup === powerup) { return; }
@@ -245,11 +244,11 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				}
 			}
 
-			var speed = 100;
+			var speed = 70;
 			if (this.planet) {
 				var circum = Math.PI*this.planet.radius*2;
 				circum = Math.max(100,circum);
-				this.angle += speed*this.movement/circum*0.5;
+				this.angle += speed/circum*0.5;
 			}
 		},
 		leavePlanet: function(force) {
@@ -300,17 +299,6 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				this.use(p.makepowerup(this));
 			}
 		},
-		move: function(dt,vx,vy) {
-			var speed = 100;
-			if (this.planet) {
-				var circum = Math.PI*this.planet.radius*2;
-				this.angle += speed*vx/circum*0.5;
-			}/* else {
-				t.set(vx,vy);
-				t.multiply(speed*dt);
-				this.velocity.addV(t);
-			}*/
-		},
 		draw: function(g) {
 			var px,py,angle;
 			if (this.planet) {
@@ -332,7 +320,6 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				if (this.planet) {
 					t.set(Math.cos(this.angle),Math.sin(this.angle));
 					t.normalRight();
-					t.multiply(this.movement);
 					var d = t.dot(this.position.x-o.position.x,this.position.y-o.position.y);
 					if (d > 0) { return; }
 					this.leavePlanet(0);
@@ -755,11 +742,6 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			g.fillStyle('black');
 			y -= messageboxHeight;
 		});
-	});
-
-	g.chains.update.unshift(function(dt,next) {
-		player.move(dt,slide(g.keys.left,g.keys.right),-slide(g.keys.down, g.keys.up));
-		next(dt);
 	});
 
 	function tryPlacePlanet(x,y) {
