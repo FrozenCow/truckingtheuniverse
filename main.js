@@ -42,7 +42,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 	var camera = new Vector(0,0);
 	var quest = null;
 	g.resources.preload({
-		images: ['planet1','planet2','planet3','planet4','planet5','planet6','car','background','planetshadow','arrow','house','shop','dow_head','dow_segment','dow_tail'],
+		images: ['planet1','planet2','planet3','planet4','planet5','planet6','car','background','planetshadow','arrow','house','shop','dow_head','dow_segment','dow_tail','smoke'],
 		audio: ['jump1','jump2','jump3','land','buy','emerge','dowdie','playerdie']
 	},startGame,function() {
 		console.error('Could not load all files! Continuing anyway...');
@@ -73,6 +73,60 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 		for(var i in extension) {
 			o[i] = extension[i];
 		}
+	}
+
+	function emitter(image,max,spawnrate,initializeParticle,updateParticle) {
+		var i;
+		var particles = [];
+		for(i=0;i<max;i++) {
+			particles.push({active:false});
+		}
+		var spawntime = spawnrate;
+		return {
+			update: function(dt) {
+				spawntime -= dt;
+				if (spawntime < 0) {
+					spawntime += spawnrate;
+					for(i=0;i<max;i++) {
+						if (!particles[i].active) {
+							particles[i].active = true;
+							initializeParticle(particles[i]);
+							break;
+						}
+					}
+				}
+				for(i=0;i<max;i++) {
+					var p = particles[i];
+					if (!p.active) { continue; }
+					updateParticle(p,dt);
+				}
+			},
+			draw: function(g) {
+				for(i=0;i<max;i++) {
+					var p = particles[i];
+					if (!p.active) { continue; }
+					g.context.globalAlpha = Math.min(1,p.time)*0.5;
+					g.context.save();
+					g.context.translate(p.posx, p.posy);
+					g.context.rotate(p.rot);
+					var s = (2-p.time)*0.3;
+					g.context.scale(s,s);
+					g.drawCenteredImage(image,0,0);
+					g.context.restore();
+					g.context.globalAlpha = 1;
+				}
+			}
+		};
+	}
+
+	function defaultParticleUpdate(p,dt) {
+		p.time -= dt;
+		if (p.time < 0) {
+			p.active = false;
+		}
+		p.posx += p.velx*dt;
+		p.posy += p.vely*dt;
+		p.rot += p.rotrate*dt;
 	}
 
 	var Planet = cclass({
@@ -253,6 +307,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				circum = Math.max(100,circum);
 				this.angle += dt*this.movement*V.drivespeed/circum;
 			}
+			this.smokeEmitter.update(dt);
 		},
 		leavePlanet: function(force) {
 			if (!this.planet) { throw "What planet?!"; }
@@ -299,7 +354,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			t.normalize();
 			this.angle = Math.atan2(t.y,t.x);
 
-			g.quake(0.1,10);
+			g.quake(0.1,5);
 			if (p.makepowerup) {
 				this.use(p.makepowerup(this));
 			}
@@ -319,6 +374,7 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 				angle = Math.atan2(this.velocity.y,this.velocity.x);
 				sy*=this.movement;
 			}
+			this.smokeEmitter.draw(g);
 			g.scalerotate(px,py,sx,sy,angle,function() {
 				g.drawCenteredImage(images.car,px,py);
 			});
@@ -342,6 +398,18 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 			}
 		}
 	};
+
+	player.smokeEmitter = emitter(images.smoke,50,0.01,function(p) {
+		randomAngle(t);
+		t.multiply(Math.random()*5);
+		p.posx = player.position.x+t.x;
+		p.posy = player.position.y+t.y;
+		p.rotrate = Math.random()*Math.PI*1;
+		p.velx = rnd()*10;
+		p.vely = rnd()*10;
+		p.rot = Math.random()*Math.PI*2;
+		p.time = 0.5+Math.random();
+	},defaultParticleUpdate);
 
 	var DowSegment = cclass({
 		constructor: function(owner,x,y) {
