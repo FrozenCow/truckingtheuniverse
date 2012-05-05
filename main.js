@@ -862,8 +862,12 @@ require(['domready!','game','cclass','vector','editor','mouse','collision','stat
 
 	g.chains.update.push(function(dt,next) {
 		g.objects.lists.planet.each(function(p) {
-			if (!p.permanent && p.position.distanceToV(player.position) > 1500) {
-				g.objects.remove(p);
+			if (p.position.distanceToV(player.position) > 1500) {
+				if (p.permanent) {
+					p.velocity.set(0,0);
+				} else {
+					g.objects.remove(p);
+				}
 			}
 
 			time +=dt;
