@@ -23,6 +23,7 @@ define(function() {
 			if (keyName) {
 				delete g.keys[keyName];
 				g.emit('keyup', keyName);
+				event.preventDefault();
 			}
 		},true);
 		g.canvas.addEventListener('keydown', function(event) {
@@ -30,6 +31,7 @@ define(function() {
 			if (keyName) {
 				g.keys[keyName] = true;
 				g.emit('keydown', keyName);
+				event.preventDefault();
 			}
 		},true);
 	};
